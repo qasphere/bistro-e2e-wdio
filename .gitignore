@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.tsbuildinfo
+
+# Environment variables
+.env
+
+# Test outputs
+allure-results/
+allure-report/
+test-results/
+junit-results/
+json-results/
+videos/
+screenshots/
+wdio-logs/
+errorShots/
+
+# Reference directory - DO NOT COMMIT
+ref-playwright-not-commit/
+
+# Logs
+*.log
+
+# Video files
+*.mp4
+
+# ESLint cache
+.eslintcache
+
+# QA Sphere CLI config (may contain credentials)
+.qaspherecli
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Agentic stuff
+.claude
