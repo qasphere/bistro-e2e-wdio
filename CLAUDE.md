@@ -4,24 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a WebDriver.io TypeScript E2E test suite for the Bistro application (SvelteKit). Tests are mapped to QA Sphere test cases (BD-023, BD-022, BD-055, BD-026, BD-038, BD-052) and generate JUnit XML reports for CI/CD integration.
-
-**IMPORTANT**: The application is built with SvelteKit, which has reactive DOM updates incompatible with WebDriverIO's standard element location and waiting mechanisms. Always use the SvelteKit support module (`test/utils/sveltekit-support.ts`) instead of WebDriver's built-in methods.
+This is a WebDriver.io TypeScript E2E test suite for the Bistro application. Tests are mapped to QA Sphere test cases (BD-023, BD-022, BD-055, BD-026, BD-038, BD-052) and generate JUnit XML reports for CI/CD integration.
 
 ## Essential Commands
 
 ### Running Tests
 ```bash
-npm test                 # Run tests in headless mode (auto-cleans old reports) - ~22-25s
-npm run test:headed      # Run tests with browser visible - ~55-65s (slower due to DevTools overhead)
-SK_DEBUG=true npm test   # Run with detailed timing logs (helps identify delays)
+npm test                 # Run tests in headless mode (auto-cleans old reports) - ~10s
+npm run test:headed      # Run tests with browser visible - ~11s
 ```
 
-**IMPORTANT**: Headed mode (`--headed`) is **slower** than headless mode due to WebDriver DevTools protocol overhead:
-- Headless: ~22-25 seconds
-- Headed: ~55-65 seconds (2.5x slower)
-
-In headed mode, the first `browser.execute()` call after page load can take 10-15 seconds due to Chrome UI rendering overhead. This is a known WebDriver limitation, not a test suite issue. Use headed mode only for visual debugging when you need to see the browser UI.
+Both headless and headed modes have similar performance (~10-11 seconds).
 
 ### Code Quality
 ```bash
@@ -70,106 +63,7 @@ The test suite uses WebDriver.io's Page Object Model pattern with five main page
   - Places order
   - Validates order items against cart
 
-### SvelteKit Support Module
-
-**Why it exists:**
-WebDriverIO's element location (`$()`, `$$()`) and waiting mechanisms (`waitForDisplayed()`, `waitForClickable()`) fail with SvelteKit's reactive DOM updates. The framework tries to locate elements via WebDriver protocol, which times out due to SvelteKit's dynamic rendering.
-
-**Key challenges solved:**
-1. **Element location** - WebDriver protocol can't locate elements during SvelteKit's reactive updates
-2. **Network timing** - Page loads and navigations need time for JavaScript bundles to load and SvelteKit to hydrate
-3. **Modal visibility** - Fixed/absolute positioned elements need special visibility detection
-4. **Form reactivity** - Inputs must dispatch Svelte events (`input`, `change`) to trigger reactivity
-
-**Solution:**
-Use JavaScript execution exclusively via the SvelteKit support helpers in `test/utils/sveltekit-support.ts`:
-
-```typescript
-import { skClick, skWait, skSetValue, skSelectOption, skScroll, skWaitForVisible } from '../utils/sveltekit-support';
-
-// ❌ NEVER do this with SvelteKit
-const button = await $('button');
-await button.click();
-
-// ✅ ALWAYS do this instead
-await skClick('button');
-```
-
-**Available helpers:**
-- `skWait()` - Basic 200ms pause for DOM to settle
-- `skWaitForNetworkIdle(timeout?)` - Wait for page load/navigation to complete (checks `document.readyState`)
-- `skScroll(selector, options?)` - Scroll element into view
-- `skClick(selector)` - Click (auto-scrolls first)
-- `skSetValue(selector, value)` - Set input/textarea value (triggers Svelte events)
-- `skSelectOption(selector, optionText)` - Select dropdown option
-- `skWaitForVisible(selector, timeout?)` - Wait for element to be visible (handles modals)
-- `skWaitForElement(selector, timeout?)` - Wait for element to exist in DOM
-- `skWaitUntil(condition, timeout?, errorMsg?)` - Poll condition
-- `skExists(selector)` - Check if element exists
-- `skIsVisible(selector)` - Check if element is visible (handles `position:fixed`)
-- `skGetText(selector)` - Get element text
-- `skGetAllText(selector)` - Get all matching elements' text
-
-**Configuration:**
-```typescript
-export const SK_BASIC_DELAY = 100;  // DOM updates/animations
-export const SK_POLL_DELAY = 100;   // Polling interval
-export const SK_MAX_WAIT = 5000;    // Max wait time
-```
-
-**Debug Logging:**
-Set `SK_DEBUG=true` environment variable to enable detailed timing logs for all SK operations:
-```bash
-SK_DEBUG=true npm test
-```
-
-Example output:
-```
-[SK] skClick: clicking "button#submit"
-[SK] skScroll: scrolling to "button#submit"
-[SK] skScroll: complete [210ms]
-[SK] skWait: pausing for DOM to settle
-[SK] skWait: complete [200ms]
-[SK] skClick: complete [468ms]
-[SK] skWaitForNetworkIdle: waiting for document.readyState === complete
-[SK] skWaitForNetworkIdle: complete [328ms]
-```
-
-This helps identify:
-- Which operations take the most time
-- How many polls are needed for wait operations
-- Network delays during page loads and navigation
-- Overall timing breakdown of test execution
-
-**Key patterns:**
-```typescript
-// Network-aware page load (initial page or after navigation)
-await browser.url('/');
-await skWaitForNetworkIdle(); // Wait for page to fully load and hydrate
-
-// Navigation with network wait
-await skClick('#checkout-link');
-await browser.waitUntil(async () => (await browser.getUrl()).includes('checkout'));
-await skWaitForNetworkIdle(); // Wait for new page to hydrate before interacting
-
-// Clicking with auto-scroll
-await skClick('#submit-button');
-
-// Form filling
-await skSetValue('#email', 'test@example.com');
-await skSelectOption('#country', 'United States');
-
-// Modal visibility (handles position:fixed correctly)
-await skWaitForVisible('#cart-modal');
-
-// Custom waits
-await skWaitUntil(async () => {
-  const count = await skGetText('#cart-count');
-  return count === '3';
-}, 3000, 'Cart count did not reach 3');
-```
-
-### WebDriverIO-Specific Patterns
+### WebDriverIO Patterns
 
 **ChainablePromiseArray Handling:**
 WebDriverIO's `$$()` returns a special `ChainablePromiseArray` type that doesn't work well with `.map()` and `Promise.all()`. Use for-of loops instead:
@@ -187,20 +81,18 @@ for (const el of elements) {
 }
 ```
 
-**IMPORTANT:** Prefer `browser.execute()` with the SvelteKit helpers over WebDriver element methods.
+**Standard WebDriverIO Methods:**
+Use standard WebDriverIO element methods like `$()`, `$$()`, `click()`, `setText()`, `waitForDisplayed()` etc. They work well with the application.
 
 ### Configuration (`wdio.conf.ts`)
 
 **Headed Mode Detection:**
-The `--headed` flag is detected via `process.argv` to toggle Chrome's headless mode and timeout:
+The `--headed` flag is detected via `process.argv` to toggle Chrome's headless mode:
 ```typescript
 const headless = !process.argv.includes("--headed");
-
-// Headed mode has longer timeout due to DevTools protocol overhead
-timeout: headless ? 60000 : 180000  // 60s headless, 180s headed
 ```
 
-Chrome flags reduce DevTools overhead in headed mode:
+Chrome flags improve performance in headed mode:
 - `--disable-extensions` - No extension loading
 - `--disable-infobars` - No Chrome infobars
 - `--disable-browser-side-navigation` - Reduce navigation overhead
@@ -259,12 +151,12 @@ export const CartItemSchema = z.object({
 
 ## Environment Setup
 
-Required `.env` file:
+Optional `.env` file:
 ```
 DEMO_BASE_URL=https://hypersequent.github.io/bistro/
 ```
 
-The config will throw an error if `DEMO_BASE_URL` is not set.
+By default, tests run against `https://hypersequent.github.io/bistro`. Create a `.env` file to override the base URL.
 
 ## TypeScript Configuration
 

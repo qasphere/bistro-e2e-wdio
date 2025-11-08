@@ -1,5 +1,4 @@
-import { browser, expect, $$ } from '@wdio/globals';
-import { skWaitForNetworkIdle, skWait, skGetText } from '../utils/sveltekit-support';
+import { browser, expect, $$, $ } from '@wdio/globals';
 
 export class AboutPage {
     get navbarItems() {
@@ -8,16 +7,14 @@ export class AboutPage {
 
     async open() {
         await browser.url(process.env.DEMO_BASE_URL! + '/about');
-        await skWaitForNetworkIdle();
-        await skWait();
     }
 
     async getHeading() {
-        return await skGetText('h1');
+        return await $('h1').getText();
     }
 
     async getBody() {
-        return await skGetText('article');
+        return await $('article').getText();
     }
 
     async getNavbarItems() {

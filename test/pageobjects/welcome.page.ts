@@ -1,5 +1,4 @@
-import { browser, expect, $$ } from '@wdio/globals';
-import { skWaitForNetworkIdle, skWait, skGetText } from '../utils/sveltekit-support';
+import { browser, expect, $$, $ } from '@wdio/globals';
 
 export class WelcomePage {
     get navbarItems() {
@@ -8,16 +7,14 @@ export class WelcomePage {
 
     async open() {
         await browser.url(process.env.DEMO_BASE_URL! + '/');
-        await skWaitForNetworkIdle();
-        await skWait();
     }
 
     async getHeading() {
-        return await skGetText('h1');
+        return await $('h1').getText();
     }
 
     async getBody() {
-        return await skGetText('div.hero1 p');
+        return await $('div.hero1 p').getText();
     }
 
     async getNavbarItems() {
@@ -40,7 +37,7 @@ export class WelcomePage {
     }
 
     async getGotoMenuButton() {
-        return await skGetText('a[href="#menu"]');
+        return await $('a[href="#menu"]').getText();
     }
 }
 

@@ -170,8 +170,6 @@ export const config = {
 
   mochaOpts: {
     ui: "bdd",
-    // Headed mode has significant DevTools protocol overhead (browser.execute() can take 10-30s)
-    // Use longer timeout in headed mode for visual debugging
-    timeout: headless ? 60000 : 180000,
+    timeout: 60000,
   },
 };

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { browser, $$, expect } from '@wdio/globals';
-import { skClick, skWait } from '../utils/sveltekit-support';
+import { browser, $$, $, expect } from '@wdio/globals';
 
 export type Tab = 'pizza' | 'drinks' | 'desserts';
 
@@ -37,9 +36,6 @@ export class MenuPage {
 
     async open() {
         await browser.url(process.env.DEMO_BASE_URL! + '/#menu');
-        // Wait for the navbar active state to update based on scroll position
-        // WebDriverIO needs more time than Playwright (100ms) due to different timing
-        await browser.pause(500);
     }
 
     async getNavbarItems() {
@@ -87,7 +83,7 @@ export class MenuPage {
             return;
         }
 
-        await skClick(`a[data-target='${tab}Menu']`);
+        await $(`a[data-target='${tab}Menu']`).click();
     }
 
     async getPizzaMenu() {
@@ -148,9 +144,6 @@ export class MenuPage {
             }
             button.click();
         }, idx);
-
-        // Wait for SvelteKit to update cart count
-        await skWait();
     }
 }
 

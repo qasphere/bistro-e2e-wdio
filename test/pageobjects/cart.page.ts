@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { browser } from '@wdio/globals';
+import { browser, $ } from '@wdio/globals';
 import { PriceSchema } from './menu.page';
-import { skClick, skWait, skWaitForVisible, skWaitForNetworkIdle } from '../utils/sveltekit-support';
 
 export const CartItemSchema = z.object({
     name: z.string().min(1),
@@ -15,32 +14,25 @@ export const CartResponseSchema = z.object({
 
 export class CartPage {
     async openCart() {
-        await skClick('div.my-cart-icon');
-        // Wait for modal to be visible (now properly handles position:fixed)
-        await skWaitForVisible('#cart');
+        await $('div.my-cart-icon').click();
+        await $('#cart').waitForDisplayed();
     }
 
     async closeCart() {
-        await skClick('#cart button[data-dismiss="modal"]');
+        await $('#cart button[data-dismiss="modal"]').click();
     }
 
     async checkout() {
-        await skClick('#cart a[href$="/checkout"]');
+        await $('#cart a[href$="/checkout"]').click();
 
         // Wait for navigation
         await browser.waitUntil(
             async () => (await browser.getUrl()).includes('checkout'),
             { timeout: 3000 }
         );
-
-        // Wait for page to load and hydrate (this fixes the long delay before form filling)
-        await skWaitForNetworkIdle();
     }
 
     async getCartItems() {
-        // Wait for SvelteKit to render
-        await skWait();
-
         // Direct read using JavaScript
         const data = await browser.execute(() => {
             const rows = Array.from(document.querySelectorAll('#cart div.row.border-bottom'));
@@ -69,9 +61,6 @@ export class CartPage {
             }
             button.click();
         }, idx);
-
-        // Wait for SvelteKit to update DOM
-        await skWait();
     }
 }
 

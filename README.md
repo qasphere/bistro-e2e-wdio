@@ -26,11 +26,11 @@ By default, tests run against `https://hypersequent.github.io/bistro`. To overri
 ### Basic Test Execution
 
 ```bash
-npm test              # Run tests in headless mode (~22-25s)
-npm run test:headed   # Run tests with browser visible (~55-65s, slower due to DevTools overhead)
+npm test              # Run tests in headless mode (~10s)
+npm run test:headed   # Run tests with browser visible (~11s)
 ```
 
-**Note:** Headed mode is significantly slower due to WebDriver DevTools protocol overhead. Use headless mode for regular development and CI/CD.
+Both headless and headed modes have similar performance.
 
 ### Code Quality
 
@@ -89,9 +89,6 @@ The project uses the **Page Object Model (POM)** pattern with five main page cla
 - `MenuPage` - Menu navigation, tab switching, adding items to cart
 - `CartPage` - Cart modal operations (open, close, checkout)
 - `CheckoutPage` - Checkout form and order placement
-
-**SvelteKit Support Module** (`test/utils/sveltekit-support.ts`):
-WebDriverIO's standard element location and waiting mechanisms fail with SvelteKit's reactive DOM updates. This module provides helpers like `skClick()`, `skSetValue()`, `skWaitForVisible()` that use JavaScript execution exclusively.
 
 See `CLAUDE.md` for detailed architecture and implementation guidelines.
 
