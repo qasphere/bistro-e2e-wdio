@@ -157,15 +157,6 @@ export const config = {
         // CI/CD systems typically ignore or collapse this section
       },
     ],
-    // Video reporter disabled - screenshots provide sufficient debugging info
-    // [
-    //   "video",
-    //   {
-    //     saveAllVideos: false, // Only save videos for failed tests
-    //     videoSlowdownMultiplier: 3, // Higher = slower videos, easier to see what happened
-    //     outputDir: "./videos",
-    //   },
-    // ],
   ],
 
   mochaOpts: {

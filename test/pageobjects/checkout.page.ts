@@ -8,6 +8,9 @@ export class CheckoutPage {
         const currentUrl = await browser.getUrl();
         expect(currentUrl).toContain('checkout');
 
+        // Wait for table to be populated
+        await $('table > tbody > tr').waitForExist();
+
         // Direct read using JavaScript
         const data = await browser.execute(() => {
             const rows = Array.from(document.querySelectorAll('table > tbody > tr'));
