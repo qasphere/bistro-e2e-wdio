@@ -9,6 +9,21 @@ describe("Content display", () => {
     await AboutPage.open();
 
     const heading = await AboutPage.getHeading();
+
+    // Example: Manual screenshot for testing attachment system
+    // Set BROKEN_TEST=1 to verify that both manual and automatic screenshots are attached to JUnit XML
+    if (process.env.BROKEN_TEST === "1") {
+      const file = "./screenshots/BD-055_manual_before_check.png";
+      const fs = await import("fs/promises");
+      await fs.mkdir("./screenshots", { recursive: true });
+      await browser.saveScreenshot(file);
+      console.log("[[ATTACHMENT|${file}]]");
+      console.error("[[ATTACHMENT|${file}]]");
+
+      // This will intentionally fail to test screenshot attachment
+      expect(heading).toBe("WRONG HEADING - This will fail");
+    }
+
     expect(heading).toBe("Welcome to Bistro Delivery");
 
     const body = await AboutPage.getBody();

@@ -9,7 +9,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run lint"
+    "check": "npm run typecheck && npm run lint",
+    "junit-upload": "npx qas-cli junit-upload --attachments --skip-report-stdout on-success junit-results/results-*.xml"
   },
   "keywords": [
     "webdriverio",
